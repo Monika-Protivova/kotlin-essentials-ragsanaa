@@ -1,6 +1,7 @@
 package com.motycka.edu.lesson02
 
 val coffeeOrders = mutableMapOf<Int, List<String>>()
+var currentOrderId = 0
 
 fun main() {
     // You can write code here to try the functions
@@ -12,19 +13,55 @@ fun main() {
 /* Implement the functions below */
 
 fun processOrder(items: List<String>, payment: Double): Double {
-    val orderId = TODO("call placerOrder(items)")
-    val totalToPay = TODO("call payOrder(orderId)")
+    val orderId = placerOrder(items)
+    val totalToPay = payOrder(orderId)
 
-    val change = TODO("calculate change by subtracting totalToPay from payment")
+    if (totalToPay > payment) {
+        error("Insufficient payment. Total to pay is $totalToPay, but received $payment.")
+    }
+    val change = payment.minus(totalToPay)
+    println("Payment successful. Total paid: $payment, Total to pay: $totalToPay, change: $change")
 
-    // TODO call completeOrder(orderId)
+    completeOrder(orderId)
 
     return change
 }
 
-// TODO Implement placerOrder(items: List<String>): Int
+fun placerOrder(items: List<String>): Int {
+    coffeeOrders[currentOrderId] = items
 
-// TODO Implement payOrder(orderId: Int): Double
+    return currentOrderId
+}
 
-// TODO Implement completeOrder(orderId: Int)
+fun payOrder(orderId: Int): Double {
+    val items = if (coffeeOrders[orderId] != null) coffeeOrders[orderId]!! else error("Order ID ${orderId} not found.")
+    val prices = items.map { item -> getPrice(item) }
+
+    val discount = if ( items.size > 3) prices.min() else 0.0
+
+    return prices.sum().minus(discount)
+}
+
+fun completeOrder(orderId: Int) {
+    if (coffeeOrders[orderId] != null)
+        coffeeOrders[orderId]!!
+    else
+        error("Order ID ${orderId} not found.")
+
+    coffeeOrders.remove(orderId)
+}
+
+fun getPrice(item: String): Double {
+    val price = when (item) {
+        ESPRESSO -> ESPRESSO_PRICE
+        CAPPUCCINO -> CAPPUCCINO_PRICE
+        DOUBLE_ESPRESSO -> DOUBLE_ESPRESSO_PRICE
+        FLAT_WHITE -> FLAT_WHITE_PRICE
+        LATTE -> LATTE_PRICE
+        AMERICANO -> AMERICANO_PRICE
+        else -> error("$item is not on the menu!")
+    }
+
+    return price
+}
 
